@@ -1,0 +1,147 @@
+# CSV Editor (csv.giit.ch)
+
+> Free CSV editor in the browser, no sign-up, documents kept in the browser. The raw CSV and a spreadsheet-like table side by side: edit cells in place (written into the text exactly at that field, quoted only where needed, line endings kept), copy and paste ranges from and to spreadsheet programs, sort and filter, find broken rows, convert separators and export to XLSX, JSON, Markdown, HTML, TSV or CSV.
+
+- Language: English at /, 13 other languages at /de/, /fr/, /it/, /es/, /pt/, /nl/, /pl/, /tr/, /ru/, /uk/, /zh/, /ja/, /ko/
+- Cost: free
+- Data: documents stay in the browser (localStorage) unless the user sets up a webhook to their own server, or a website that embeds the editor receives it (postMessage) and saves it on its own server. A document sent to post.php by a form (viewer) is passed to the browser in memory and not stored on the server. The server logs requests (IP address, address requested), and page views are counted anonymously.
+- No files of a document: a CSV is one text; there are no pictures or other files, and no `assets` fields in any message.
+
+## Features
+
+- Code and table side by side; a click in the table puts the code's cursor on that field, the cursor in the code selects its cell.
+- Separator comma, semicolon, tab or pipe (detected, or chosen); quote character " or '; header row on or off; UTF-8 with or without BOM and Windows-1252 when opening a file; line endings (LF, CRLF) kept.
+- Editing in place: Enter, F2, typing or a double-click edits a cell; Enter / Tab keep, Escape cancels, Alt+Enter is a line break in the cell; arrows, Shift+arrows, Ctrl+A; Ctrl+C / Ctrl+X / Ctrl+V copy and paste ranges as TSV (as Excel, LibreOffice and Google Sheets use it); Delete empties cells. Typing into the empty row at the end adds a row. Every change is one undo step.
+- Rows and columns added, duplicated, deleted and moved; sort and filter for the view; sorting the data itself on request; clean up (spaces, empty rows, repeated rows, missing fields); convert the separator, line endings and quoting.
+- Column info: kind (numbers, dates, text), filled, empty and different values, smallest, largest, sum, average, most frequent values.
+- Problems listed with their line: rows with a different number of fields, unclosed quotes, text after a closing quote, empty and repeated header names.
+- Large files: the table and the code view draw only what is in sight (100 000 rows stay usable).
+- Export: Excel workbook (.xlsx, numbers as numbers, text never as a formula), CSV with any separator and encoding, TSV, JSON (objects with headers, arrays without), Markdown table, HTML table. Protect CSV/TSV exports against formulas; plain signed numbers remain unchanged. Formula protection is on by default.
+- Templates: contacts, product list, budget (semicolons), time sheet (tabs).
+- My documents: any number of documents in the browser - open, rename, duplicate, download (.csv) and delete.
+- Light, dark or automatic color theme.
+
+## Writing for a user (for AI assistants)
+
+Any AI can put a table into the user's open editor with a link; no server, no API key:
+
+- `https://csv.giit.ch/#b64=<base64url of the UTF-8 CSV>`
+- `https://csv.giit.ch/#csv=<URL-encoded CSV>`
+- `https://csv.giit.ch/#z=<base64url of the zlib-compressed CSV>` (shorter)
+- Add `&mode=add` to append rows at the end of the current document (send only the new rows; a repeated header row is left out).
+- Add `&file=new&name=<name>` to make a new document next to the user's others, or `&file=<name>` to change that one. Without `&file=` the open document changes.
+- Long tables: split the encoded text and send one link per part with `&part=N&of=M&id=<name>`.
+
+Write the complete CSV with the same separator and header row as the user's, quote a field with " only when it contains the separator, a quote or a line break, and double quotes inside it. Open the link in the user's browser if you can, otherwise give it to the user to click. The user can undo every change. In the editor, "AI Assistant" > "Copy prompt" gives the AI these instructions together with the current table (long tables shortened).
+
+## Saving on your own server (webhook)
+
+Set under "Save to server" (cloud button), or for one document with `?webhook=<URL>`: only for that one document and only while the page is open - a link never stores a webhook. At the top level the user is asked first; inside a page (iframe or opener) it only works together with `?src=` and only for the document opened with it. On "Save" (Ctrl+S), or automatically a few seconds after each change if chosen, the browser sends:
+
+    POST <webhook URL>
+    Content-Type: application/json
+    Authorization: Bearer <token>        (only if a token is set)
+
+    {"editor":"csv","event":"save","id":"<document id>","name":"<name>",
+     "content":"<the CSV text>","updated":"<ISO date>"}
+
+One request carries at most 40 MB; the server's error text (e.g. for 413) is shown to the user. The server must answer CORS requests from https://csv.giit.ch (Access-Control-Allow-Origin, and Access-Control-Allow-Headers: Content-Type, Authorization). `?src=<URL>` opens a CSV file from a URL (CORS needed), `&name=<name>` names it. The content is the text exactly as it is in the editor (its separator and line endings).
+
+## Embedding in a website
+
+A guide for developers with examples, in every language of the editor: [https://csv.giit.ch/embed/](https://csv.giit.ch/embed/) (`/<code>/embed/`, e.g. `/de/embed/`). The complete protocol follows here.
+
+    <iframe src="https://csv.giit.ch/?embed=1" style="width:100%;height:80vh;border:0"></iframe>
+
+Messages (postMessage; check `event.origin === "https://csv.giit.ch"` and `event.source === iframe.contentWindow`):
+
+- Editor -> page: `{type:"csveditor:ready", version:2, editor:"csv", window:false}` when it can take a document.
+- Page -> editor: `{type:"csveditor:load", name, content}` opens the document (a document of that name from your page is replaced, otherwise made).
+- Editor -> page: `{type:"csveditor:loaded", id, name}`, then `{type:"csveditor:change", id, name, content}` on each edit (not after load), and `{type:"csveditor:save", id, name, content, editor, event, updated}` when the user clicks Save or presses Ctrl+S.
+- Page -> editor: `{type:"csveditor:get"}` asks for a `csveditor:save` message; `{type:"csveditor:save"}` saves as if the user had clicked Save.
+
+In embedded mode the page text below the editor is hidden and a Save button is shown. The other giit editors (latex.giit.ch, svg.giit.ch and more) speak the same protocol with their own prefix (`latexeditor:`, `svgeditor:` …).
+
+Optional fields of `csveditor:load`:
+- `context: {host, title, rules}` - plain text about the page (rules up to 2000 characters). "Copy prompt" in the AI Assistant then tells the AI that the document belongs to that page and is saved back there, includes the rules, and leaves out how to build a webhook server.
+- `hook: {url, token}` - a webhook (https) for this document only, used on Save in addition to the message; kept in memory only (never stored, gone on reload). If the server answers with an error, its `{"error": "…"}` (or `message`, or a short text) is shown to the user.
+
+AI Assistant in a frame: add `allow="clipboard-write"` to the iframe so "Copy prompt" can use the clipboard (without it the editor falls back to the old copy command or shows the prompt to copy by hand). Links from an AI cannot reach an editor inside another website (the browser keeps its storage and channels apart), so in a frame the prompt and the dialog ask to paste the AI's whole answer into the editor; use the own window (below) if links should work.
+
+`csveditor:get` is always answered with a `csveditor:save` message, also when nothing changed.
+
+### All messages at a glance
+
+Editor -> page (sent to the page around the editor, or to window.opener in its own window):
+- `csveditor:ready` {version:2, editor, window} - can take a document
+- `csveditor:loaded` {id, name, target?} - after each load; remember the id (target:"new" for a new document from the AI, which is not yours)
+- `csveditor:change` {id, name, content} - a real edit of your document (not after load)
+- `csveditor:save` {editor, event, id, name, content, updated} - Save / Ctrl+S (from anywhere in the editor), or the answer to get
+- `csveditor:closing` {id, name, unsaved, content?} - own window closes (always sent; content only when unsaved, id null before the first load)
+- `csveditor:reload` {id, unsaved} - inside your page, F5 / Ctrl+R / Cmd+R do not reload the editor; ask the user yourself (Ctrl+W cannot be caught by a page)
+- `csveditor:key-request` {reason:"missing"} - the editor has no AI key in this session yet
+
+`?embed=1&save=0` hides the editor's Save button (Ctrl+S still sends `csveditor:save`) - for pages with their own Save button.
+
+`?theme=light`, `?theme=dark` or `?theme=auto` (with or without `embed`) fixes the color theme for that page load and hides the theme switch; the user's own stored choice is not changed. Other values are ignored.
+
+`?lang=de` shows the editor's interface in German (menus, buttons, dialogs, messages), `?lang=en` in English (the default). `/` leads to the browser's language, and a language picked in the menu holds for every giit.ch site. The AI prompt is always English.
+
+Page -> editor (only from the page around the editor or the opener; after its first message only from that origin; pages without a real origin are ignored):
+- `csveditor:load` {name, content, context?, hook?, ai?, from?, target?} - open your document; from:"ai" shows a note, target:"new" opens it as a separate document in the user's browser
+- `csveditor:get` - answered with `csveditor:save` of your document (id and content null before the first load)
+- `csveditor:save` - press Save
+- `csveditor:ai` {label?, prompt?, endpoint?, key?, base?} or {clear:true} - AI through your server
+
+Your document is the one your page loaded (or opened with ?src=). change, save, closing and get are only ever about it - never about other documents in the user's browser, also when the user opens them in the editor. A load replaces only a document that came from your page before (same name and origin), never the user's own; the AI settings and the hook from load apply only while your document is open. Your document is kept in memory only - it is never stored in the user's browser and is gone when the editor closes.
+
+### AI through your own server (prompt and session key)
+
+The editor has no backend; your site keeps the keys and the results. Hand the editor your prompt, an endpoint and a key for this editor session - in `csveditor:load` as `ai: {…}`, or at any time as its own message:
+
+    {type:"csveditor:ai", label:"Example Admin", prompt:"<your instructions, up to 8000 characters>",
+     endpoint:"https://your-site.com/api/ai-result", key:"<session key>",
+     base:true}
+
+Fields left out keep their value; `{type:"csveditor:ai", clear:true}` ends it. One key per editor session: once the editor has a key it keeps it until the session ends or `clear`, and does not take a different one. `base:false` leaves out the editor's own instructions. The AI dialog shows "Connected to <label> (<real host>)", what your page tells the AI, and a choice: change the current document (default) or make a new one. "Copy prompt" copies the editor's short instructions, your prompt (fenced, marked with your real host), the current table and how to send the result:
+
+    POST <endpoint>
+    Authorization: Bearer <key>
+    Content-Type: application/json
+    {"editor":"csv","target":"current"|"new","name":"<short name>","content":"<the complete CSV>"}
+
+An AI that cannot send HTTP requests answers with a link instead, which the user pastes into the editor. When your server has a result, your page sends `{type:"csveditor:load", name, content, from:"ai", target}`: target "current" (or none) puts it into your document (the user sees a note; Undo takes it back; it counts as not yet saved), target "new" opens a separate document that stays in the user's browser - its edits and Save never go to your page. The key stays valid in the editor for the whole session; only when it has none at "Copy prompt", the editor sends `{type:"csveditor:key-request", reason:"missing"}`; answer with a `csveditor:ai` message within 5 seconds.
+
+Safety built in: key, endpoint and prompt are only taken from the page around the editor (after its first message, only from that origin), kept in memory, never stored and never sent by the editor itself - the key only goes into the prompt the user copies. The endpoint must be https on your page's own host (with or without www.) or a subdomain of it; others are refused. Keys must be 16-512 characters of A-Z a-z 0-9 . _ ~ + / = -.
+
+Your backend should: make keys with at least 128 random bits, store only their hash, bind each key to the logged-in user, the document and this editor session, make exactly one key per session, give it no fixed lifetime but keep it valid only while your open page reports the session (e.g. every minute; void it 3 minutes after the last report), void it when the editor, its window or your page closes and when the user logs out, accept only JSON of a sensible size, keep results as drafts until the user saves in the editor, answer key requests only for the logged-in user, and not send CORS headers on the endpoint (AIs call it from a server or a command line, not from a browser).
+
+### Own window
+
+    const win = window.open("https://csv.giit.ch/?embed=window", "csveditor-<id>");   // no "noopener"
+
+The full editor (not the reduced embedded view) with a Save button, in a top-level window, so links from an AI reach it. It talks to `window.opener` exactly as an iframe talks to its parent: `csveditor:ready` goes to the opener, messages are only taken from it, and once the page has sent a message, answers go only to its origin. Save sends `csveditor:save` to the opener (if it is still open) and to the webhook from `load`. Closing the window always sends `{type:"csveditor:closing", id, name, unsaved}`, with `content` when there are changes that were not saved; if the opener is gone, the browser asks before closing with such changes. When the opener is closed, the AI settings (key included) and the hook from `load` end. Calling `window.open` again with the same name reloads the window - focus the existing one instead. The site sends no Cross-Origin-Opener-Policy, so `window.opener` is kept.
+
+## Tools for browser agents (WebMCP)
+
+In browsers with WebMCP (`document.modelContext`), the editor page registers tools that run in the page itself: `get_document`, `get_problems`, `get_rows` (from, to: data rows from 1, at most 500), `set_cell` (row: 1 = first data row, 0 = header; column: number from 1 or header name; value), `add_rows` (rows as arrays of values, or CSV text), `set_document` (csv), `undo`, and `list_files`, `open_file`, `new_file` for the user's other documents. Every change is an undo step for the user.
+
+## Pages
+
+- [CSV Editor](https://csv.giit.ch/)
+- [Embed the CSV Editor in your website (developer guide)](https://csv.giit.ch/embed/)
+- [Imprint](https://csv.giit.ch/imprint.html)
+- [Privacy policy](https://csv.giit.ch/privacy.html)
+- [Source code on GitHub](https://github.com/SebisCodes/csv-editor): open source under the Apache License 2.0 (LICENSE and NOTICE in the repository)
+
+A project by [Grünwald Innovation](https://giit.ch/). All giit editors: [editors.giit.ch](https://editors.giit.ch/).
+
+## Viewer and documents by POST
+
+`?viewer=1` shows only the rendered document, read-only, and stores nothing in the browser. The content comes from a link (`#b64=`, `#z=`, `?src=`), from `csveditor:load` in an iframe, or by POST.
+
+`POST /post.php?viewer=1` as `application/x-www-form-urlencoded` with `content` (text) or `b64` (base64 or base64url), optional `name` and `lang`, at most 20 MB of text. Without `viewer=1` the document opens in the normal editor, in memory only. The document is not stored on the server.
+
+## Open in another editor
+
+Export > "Open in another editor" converts the document in the browser between JSON, YAML, SHLS, XML and CSV and opens the result as a new document in that editor, by a link (`#z=...&file=new&name=...`). What the other format cannot hold is listed first. Pictures do not travel.
