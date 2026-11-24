@@ -6,8 +6,8 @@
 
 import { convertFromBytes } from './util.js?v=3';
 import { state, getElement, DEFAULT_FORMAT, openedFileBytes, showToast } from './state.js?v=3';
-import { createDocument, DEFAULT_NAME } from './documents.js?v=4';
-import { renderPanel } from './panel.js?v=4';
+import { createDocument, DEFAULT_NAME } from './documents.js?v=5';
+import { renderPanel } from './panel.js?v=5';
 
 const CSV_FILE = /\.(csv|tsv|tab|txt|psv|dat)$/i;
 const TAB_FILE = /\.(tsv|tab)$/i;

@@ -16,7 +16,7 @@
 import { parseCsv, readRecord, findSeparator, findLineEnding, findRecordIndex } from './csv.js?v=4';
 import { getColumnInfo, getSortKey, getValueOrder, getColumnLetter } from './values.js?v=3';
 import { state, ui, getElement, getClamped } from './state.js?v=3';
-import { updateProblems } from './problems.js?v=4';
+import { updateProblems } from './problems.js?v=5';
 import { TEMPLATE_SYNTAX, findControlRows, getRecordBlocks } from './template-rows.js?v=1';
 import { tableSource, getExampleTable, setExampleOrder, updateExampleTable } from './table-views.js?v=1';
 

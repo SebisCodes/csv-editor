@@ -20,7 +20,7 @@
  *   6. offer the test hook window.csvEditor.
  */
 
-import { createI18n } from './i18n.js?v=24';
+import { createI18n } from './i18n.js?v=25';
 import { createWrap } from './wrap.js?v=5';
 import { createAiStatus } from './aistatus.js?v=9';
 import { createSync } from './sync.js?v=25';
@@ -32,27 +32,27 @@ import { createAi } from './ai.js?v=9';
 import { createMcp } from './mcp.js?v=4';
 import { state, areas, ui, DEFAULT_FORMAT, showToast } from './state.js?v=3';
 import { updateTextIndex, getAreaPosition, getCodePosition } from './text-index.js?v=3';
-import { parseDocument } from './table-model.js?v=4';
-import { renderCode, showCodePosition, startCodeView } from './code-view.js?v=4';
-import { startProblems } from './problems.js?v=4';
-import { renderAll } from './refresh.js?v=4';
-import { setCode, addHistoryStep, undo, redo } from './history.js?v=4';
-import { getSettings, startStorageSync } from './storage.js?v=4';
-import { createTableView } from './table-view.js?v=4';
-import { renderInsert, startSidePanel } from './panel.js?v=4';
-import { setRowOrder } from './cleanup.js?v=4';
-import { showFileName, openDocument, createDocumentsDialog, startDocumentButtons } from './documents.js?v=4';
-import { startFileImport } from './file-import.js?v=4';
-import { startKeyboard } from './keyboard.js?v=4';
-import { showSplit, startLayout, startDialogs } from './layout.js?v=4';
-import { startExportDialog } from './export-dialog.js?v=4';
-import { receiveDocument, importExternalDocument } from './incoming.js?v=5';
-import { startTemplateControls, updateTemplateView } from './template-panel.js?v=1';
+import { parseDocument } from './table-model.js?v=5';
+import { renderCode, showCodePosition, startCodeView } from './code-view.js?v=5';
+import { startProblems } from './problems.js?v=5';
+import { renderAll } from './refresh.js?v=5';
+import { setCode, addHistoryStep, undo, redo } from './history.js?v=5';
+import { getSettings, startStorageSync } from './storage.js?v=5';
+import { createTableView } from './table-view.js?v=5';
+import { renderInsert, startSidePanel } from './panel.js?v=5';
+import { setRowOrder } from './cleanup.js?v=5';
+import { showFileName, openDocument, createDocumentsDialog, startDocumentButtons } from './documents.js?v=5';
+import { startFileImport } from './file-import.js?v=5';
+import { startKeyboard } from './keyboard.js?v=5';
+import { showSplit, startLayout, startDialogs } from './layout.js?v=5';
+import { startExportDialog } from './export-dialog.js?v=5';
+import { receiveDocument, importExternalDocument } from './incoming.js?v=6';
+import { startTemplateControls, updateTemplateView } from './template-panel.js?v=2';
 import { createTemplateExamples } from './template-examples.js?v=2';
 import { getViewMode, tableSource } from './table-views.js?v=1';
 import {
     getPromptState, getProblemList, getRowRange, setAgentCell, addAgentRows, getFileList, openFileByName, createFile,
-} from './agent-api.js?v=4';
+} from './agent-api.js?v=5';
 
 const PREFIX = 'csveditor';
 

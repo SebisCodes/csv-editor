@@ -357,12 +357,14 @@ def run_view_checks(browser):
     check_that(frame.evaluate(f'{HOOK}.state.code') == ORDER, 'one undo step takes it back')
     check_that(send_and_wait(page, {'type': f'{PREFIX}:get'}, 'save')['content'] == ORDER, '"get" carries the template as written')
     panel_button = get_box(frame, '#btn-panel')
+    tables_before = get_box(frame, '.tables-pane')
     check_that(frame.evaluate("getComputedStyle(document.querySelector('#side-panel')).display") == 'none', 'the side panel is closed at the start')
     frame.click('#btn-panel')
-    check_that(frame.evaluate("getComputedStyle(document.querySelector('#side-panel')).display") != 'none' and get_box(frame, '#btn-panel') == panel_button
-               and get_box(frame, '#grid') == table_before, 'its button opens it over the table, which keeps its size, and stays in its place')
-    check_that(get_box(frame, '#side-panel')['y'] >= get_box(frame, '.tables-pane > .pane-header')['y'] + get_box(frame, '.tables-pane > .pane-header')['height'],
-               'the drawer starts below the table\'s bar')
+    tables_open, panel_open = get_box(frame, '.tables-pane'), get_box(frame, '#side-panel')
+    check_that(panel_open['width'] > 0 and get_box(frame, '#btn-panel') == panel_button
+               and tables_open['width'] < tables_before['width'],
+               'its button opens it as a column that narrows the table, and stays in its place')
+    check_that(abs(panel_open['x'] - (tables_open['x'] + tables_open['width'])) <= 1, 'the side panel stands right of the table')
     page.evaluate(f"() => {{ document.querySelector('#ed').contentWindow.postMessage({{ type: '{PREFIX}:template', clear: true }}, '*'); }}")
     frame.wait_for_function("document.querySelector('#grid').innerText.includes('[name]')", timeout=10000)
     check_that('[city]' in frame.inner_text('#grid'), 'clear ends the examples: labels in brackets')
@@ -423,7 +425,7 @@ def run_browser_checks():
         check_that(page.locator('#view-switch').is_hidden() and page.locator('#placeholder-box').is_hidden() and page.locator('#view-note').is_hidden(),
                    'option off: no switch, no box, no note')
         check_that(page.evaluate("getComputedStyle(document.querySelector('#side-panel')).display") == 'none' and page.locator('#btn-panel').is_visible(),
-                   'option off: the side panel is a closed drawer with its button too')
+                   'option off: the side panel is closed at the start with its button too')
         page.close()
         browser.close()
 

@@ -18,9 +18,9 @@ import { createFilesDialog } from './files-dialog.js?v=2';
 import {
     state, areas, ui, getElement, getElements, DEFAULT_FORMAT, historyByDocument, openedFileBytes, showToast,
 } from './state.js?v=3';
-import { setCode, addHistoryStep, updateHistoryButtons, editCode, undo, redo } from './history.js?v=4';
-import { saveDocument } from './storage.js?v=4';
-import { showFilePicker } from './file-import.js?v=4';
+import { setCode, addHistoryStep, updateHistoryButtons, editCode, undo, redo } from './history.js?v=5';
+import { saveDocument } from './storage.js?v=5';
+import { showFilePicker } from './file-import.js?v=5';
 
 /** The text of a blank document. */
 export const BLANK_CODE = 'Column 1,Column 2,Column 3\n';

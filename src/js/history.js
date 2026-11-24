@@ -12,9 +12,9 @@
 
 import { state, areas, ui, getElement, showToast } from './state.js?v=3';
 import { updateTextIndex } from './text-index.js?v=3';
-import { parseDocument } from './table-model.js?v=4';
-import { renderAll } from './refresh.js?v=4';
-import { saveDocument, saveFormat } from './storage.js?v=4';
+import { parseDocument } from './table-model.js?v=5';
+import { renderAll } from './refresh.js?v=5';
+import { saveDocument, saveFormat } from './storage.js?v=5';
 
 /** Characters kept for undo in all. */
 const MAX_HISTORY_SIZE = 40e6;

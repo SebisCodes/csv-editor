@@ -45,10 +45,9 @@ only changes the view. **Sort the data** puts the rows of the file into that ord
 
 The side panel has **Format** (how the text is read: separator, quote, header row, and
 converting it), **Column** (what a column holds) and **Insert** (add, delete and move rows
-and columns, clean up). The button at the top right of the work area opens it over the table,
-below the table's bar, and closes it again (Escape too); it is closed when the editor opens.
-The bar's controls stay in view and usable while it is open. On a phone it is the view
-**Edit**.
+and columns, clean up). The button at the top right of the work area opens it as a column
+right of the table, which gets narrower, and closes it again; it is closed when the editor
+opens. On a phone it is the view **Edit**.
 
 ## Templates with placeholders
 

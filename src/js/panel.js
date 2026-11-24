@@ -8,10 +8,10 @@
 import { escapeHtml } from './csv.js?v=4';
 import { getColumnInfo, getColumnLetter } from './values.js?v=3';
 import { state, areas, ui, getElements, getDataStart, translate } from './state.js?v=3';
-import { renderFormat, startFormatTab } from './panel-format.js?v=4';
-import { updateTableNow } from './refresh.js?v=4';
-import { addRows, copyRows, removeRows, moveRows, addColumn, removeColumns, moveColumn } from './edits.js?v=4';
-import { setRowOrder, removeCellSpaces, removeEmptyRows, removeRepeatedRows, expandShortRows } from './cleanup.js?v=4';
+import { renderFormat, startFormatTab } from './panel-format.js?v=5';
+import { updateTableNow } from './refresh.js?v=5';
+import { addRows, copyRows, removeRows, moveRows, addColumn, removeColumns, moveColumn } from './edits.js?v=5';
+import { setRowOrder, removeCellSpaces, removeEmptyRows, removeRepeatedRows, expandShortRows } from './cleanup.js?v=5';
 
 const KIND_LABELS = { number: 'Numbers', date: 'Dates', text: 'Text', empty: 'Empty' };
 /** Values longer than this are cut in the list of frequent values. */

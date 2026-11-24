@@ -12,9 +12,9 @@ import { formatField } from './csv.js?v=4';
 import { buildReorderedText, convertRecords } from './csv-edit.js?v=3';
 import { getColumnLetter } from './values.js?v=3';
 import { state, getDataStart } from './state.js?v=3';
-import { setRecordOrder } from './table-model.js?v=4';
-import { editCode } from './history.js?v=4';
-import { saveFormat } from './storage.js?v=4';
+import { setRecordOrder } from './table-model.js?v=5';
+import { editCode } from './history.js?v=5';
+import { saveFormat } from './storage.js?v=5';
 
 /**
  * Sorts the data rows themselves by a column (the header row stays on top; in a template each

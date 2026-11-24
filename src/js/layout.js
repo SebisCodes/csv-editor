@@ -1,13 +1,13 @@
 /**
  * The layout of the work area: the splitter between code and table (dragged or moved with the
- * arrow keys, stored with the settings), the side panel (a drawer on the desktop, closed at the
+ * arrow keys, stored with the settings), the side panel (a column on the desktop, closed at the
  * start), the view tabs on narrow screens, and the closing of dialogs.
  */
 
 import { openDialog } from './dialogs.js?v=5';
 import { state, areas, ui, getElement, getElements, getClamped } from './state.js?v=3';
-import { renderCode } from './code-view.js?v=4';
-import { saveDocument } from './storage.js?v=4';
+import { renderCode } from './code-view.js?v=5';
+import { saveDocument } from './storage.js?v=5';
 
 const MIN_SPLIT = 0.12;
 const MAX_SPLIT = 0.85;
@@ -36,8 +36,7 @@ export function showPane(pane) {
 }
 
 /**
- * Connects the splitter, the view tabs, the side panel's button and the drawer's place below the
- * table's bar.
+ * Connects the splitter, the view tabs and the side panel's button.
  * @returns {void}
  */
 export function startLayout() {
@@ -47,41 +46,16 @@ export function startLayout() {
     getElements('[data-pane]').forEach(button => button.addEventListener('click', () => showPane(button.dataset.pane)));
     showSidePanel(false);
     getElement('#btn-panel').addEventListener('click', () => showSidePanel(ui.work.dataset.panel !== 'open'));
-    getElement('#side-panel').addEventListener('keydown', closeSidePanelOnEscape);
-    watchTableBarHeight();
 }
 
 /**
- * Keeps the height of the table's bar as --table-bar on the work area: the side panel's drawer
- * starts below the bar, so the bar's controls stay in view and usable while it is open. The bar
- * is taller when its controls wrap (narrow work area, long labels of a language).
- * @returns {void}
- */
-function watchTableBarHeight() {
-    const bar = getElement('.tables-pane > .pane-header');
-    const observer = new ResizeObserver(() => ui.work.style.setProperty('--table-bar', bar.offsetHeight + 'px'));
-    observer.observe(bar);
-}
-
-/**
- * Opens or closes the side panel's drawer.
+ * Opens or closes the side panel's column.
  * @param {boolean} isOpen - true to open it.
  * @returns {void}
  */
 export function showSidePanel(isOpen) {
     ui.work.dataset.panel = isOpen ? 'open' : 'closed';
     getElement('#btn-panel').setAttribute('aria-expanded', String(isOpen));
-}
-
-/**
- * Closes the side panel's drawer with Escape inside it and puts the focus on its button.
- * @param {KeyboardEvent} event - the key in the side panel.
- * @returns {void}
- */
-function closeSidePanelOnEscape(event) {
-    if (event.key !== 'Escape' || ui.work.dataset.panel !== 'open' || event.target.closest('dialog')) return;
-    showSidePanel(false);
-    getElement('#btn-panel').focus();
 }
 
 /**
@@ -105,7 +79,7 @@ function moveSplitOnKey(event) {
 function startSplitDrag(splitter, event) {
     splitter.setPointerCapture(event.pointerId);
     const box = ui.work.getBoundingClientRect();
-    const available = box.width - splitter.offsetWidth;
+    const available = box.width - getElement('.inspector').offsetWidth - splitter.offsetWidth;
     /**
      * Moves the splitter with the pointer.
      * @param {PointerEvent} moveEvent - the pointer move.

@@ -18,13 +18,13 @@ import { getColumnLetter } from './values.js?v=3';
 import { startGrid } from './grid.js?v=8';
 import { state, areas, ui, getElement, getWriteFormat, translate, showToast } from './state.js?v=3';
 import { getAreaPosition } from './text-index.js?v=3';
-import { updateView, getFieldSpan, getFieldSpanAt } from './table-model.js?v=4';
-import { renderCode, showCodePosition } from './code-view.js?v=4';
-import { renderPanel } from './panel.js?v=4';
-import { updateTableNow } from './refresh.js?v=4';
-import { editCode } from './history.js?v=4';
-import { addRows, addColumn } from './edits.js?v=4';
-import { setRowOrder } from './cleanup.js?v=4';
+import { updateView, getFieldSpan, getFieldSpanAt } from './table-model.js?v=5';
+import { renderCode, showCodePosition } from './code-view.js?v=5';
+import { renderPanel } from './panel.js?v=5';
+import { updateTableNow } from './refresh.js?v=5';
+import { editCode } from './history.js?v=5';
+import { addRows, addColumn } from './edits.js?v=5';
+import { setRowOrder } from './cleanup.js?v=5';
 import {
     tableSource, getTemplateRecordOf, getTemplateCellOf, getShownViewRow, getCellEditRefusal, getExampleCellOffset, getExampleTable, EXAMPLE_EDIT_MESSAGE,
 } from './table-views.js?v=1';

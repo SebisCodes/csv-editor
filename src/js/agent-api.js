@@ -10,10 +10,10 @@ import { getColumnLetter } from './values.js?v=3';
 import { store } from './files.js?v=8';
 import { state, areas, getDataStart } from './state.js?v=3';
 import { getCodeLine } from './text-index.js?v=3';
-import { updateTableNow } from './refresh.js?v=4';
-import { editCode } from './history.js?v=4';
-import { writeCells } from './table-view.js?v=4';
-import { openDocument, createDocument, BLANK_CODE } from './documents.js?v=4';
+import { updateTableNow } from './refresh.js?v=5';
+import { editCode } from './history.js?v=5';
+import { writeCells } from './table-view.js?v=5';
+import { openDocument, createDocument, BLANK_CODE } from './documents.js?v=5';
 
 /** The prompt and get_document carry at most this many characters of the text. */
 const PROMPT_CAP = 60000;

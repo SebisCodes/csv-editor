@@ -8,9 +8,9 @@
 import { state, areas, ui, getElement } from './state.js?v=3';
 import { TEMPLATE_SYNTAX } from './template-rows.js?v=1';
 import { getCodePosition } from './text-index.js?v=3';
-import { editCode } from './history.js?v=4';
-import { renderTableView } from './refresh.js?v=4';
-import { renderCode } from './code-view.js?v=4';
+import { editCode } from './history.js?v=5';
+import { renderTableView } from './refresh.js?v=5';
+import { renderCode } from './code-view.js?v=5';
 import { startViewSwitch, showViewSwitch, showViewNote, createPlaceholderBox, getListedPlaceholders } from './template-controls.js?v=2';
 import { getViewMode, setViewMode, isExampleViewFailed, getTemplateExamples, getShownViewRow } from './table-views.js?v=1';
 

@@ -11,10 +11,10 @@ import { findRecordIndex, readRecord } from './csv.js?v=4';
 import { highlight } from './highlight.js?v=2';
 import { state, areas, ui, NARROW_SCREEN } from './state.js?v=3';
 import { updateTextIndex, getAreaPosition, getCodePosition, getAreaLine } from './text-index.js?v=3';
-import { updateTableNow } from './refresh.js?v=4';
-import { renderPanel } from './panel.js?v=4';
-import { addHistoryStep, updateHistoryButtons, undo, redo } from './history.js?v=4';
-import { saveDocument } from './storage.js?v=4';
+import { updateTableNow } from './refresh.js?v=5';
+import { renderPanel } from './panel.js?v=5';
+import { addHistoryStep, updateHistoryButtons, undo, redo } from './history.js?v=5';
+import { saveDocument } from './storage.js?v=5';
 import { getShownViewRow } from './table-views.js?v=1';
 
 const LINE_HEIGHT = 20;

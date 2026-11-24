@@ -10,8 +10,8 @@ import { readRecord, escapeHtml } from './csv.js?v=4';
 import { getColumnLetter } from './values.js?v=3';
 import { state, ui, NARROW_SCREEN, translate } from './state.js?v=3';
 import { getCodeLine } from './text-index.js?v=3';
-import { showCodePosition, selectCellAtCursor } from './code-view.js?v=4';
-import { showPane } from './layout.js?v=4';
+import { showCodePosition, selectCellAtCursor } from './code-view.js?v=5';
+import { showPane } from './layout.js?v=5';
 import { checkTemplateSections } from './template-tags.js?v=2';
 import { TEMPLATE_SYNTAX } from './template-rows.js?v=1';
 

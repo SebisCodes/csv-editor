@@ -6,13 +6,13 @@
  */
 
 import { state, areas } from './state.js?v=3';
-import { parseDocument, updateView } from './table-model.js?v=4';
-import { renderProblems } from './problems.js?v=4';
-import { renderCode, selectCellAtCursor } from './code-view.js?v=4';
-import { renderFilterColumns } from './table-view.js?v=4';
-import { renderPanel } from './panel.js?v=4';
+import { parseDocument, updateView } from './table-model.js?v=5';
+import { renderProblems } from './problems.js?v=5';
+import { renderCode, selectCellAtCursor } from './code-view.js?v=5';
+import { renderFilterColumns } from './table-view.js?v=5';
+import { renderPanel } from './panel.js?v=5';
 import { updateExampleTable } from './table-views.js?v=1';
-import { renderTemplateControls } from './template-panel.js?v=1';
+import { renderTemplateControls } from './template-panel.js?v=2';
 
 /**
  * Draws the code, the problems, the filter's column list, the table, the controls of template

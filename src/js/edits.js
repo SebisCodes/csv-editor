@@ -6,7 +6,7 @@
 import { formatField, formatRecord } from './csv.js?v=4';
 import { buildReorderedText, convertRecords } from './csv-edit.js?v=3';
 import { state, areas, ui, getDataStart, isViewFiltered, showToast } from './state.js?v=3';
-import { editCode } from './history.js?v=4';
+import { editCode } from './history.js?v=5';
 import { getShownViewRow } from './table-views.js?v=1';
 
 /**
