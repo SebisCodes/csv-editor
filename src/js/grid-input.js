@@ -4,11 +4,11 @@
  * and starting an edit (a double press, Enter, F2 or typing).
  */
 
-import { getDataCount, getTableWidth, getTopRow, getColumnWidth, getPageRowCount, getRecordOf, getActiveRecord } from './grid-view.js?v=2';
-import { renderGrid, startGridRender } from './grid-render.js?v=3';
-import { setActiveCell, selectAll } from './grid-select.js?v=3';
-import { startEdit, stopEdit } from './grid-edit.js?v=3';
-import { clearSelection } from './grid-clipboard.js?v=2';
+import { getDataCount, getTableWidth, getTopRow, getColumnWidth, getPageRowCount, getRecordOf, getActiveRecord } from './grid-view.js?v=3';
+import { renderGrid, startGridRender } from './grid-render.js?v=4';
+import { setActiveCell, selectAll } from './grid-select.js?v=4';
+import { startEdit, stopEdit } from './grid-edit.js?v=4';
+import { clearSelection } from './grid-clipboard.js?v=3';
 
 /** A second press on the same cell or column head within this time is a double-click. */
 const DOUBLE_PRESS_TIME = 450;

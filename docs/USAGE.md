@@ -43,9 +43,24 @@ A click in the table puts the code's cursor on that field; the cursor in the cod
 its cell. The arrows in the column heads sort and the field above the table filters: that
 only changes the view. **Sort the data** puts the rows of the file into that order.
 
-The right side panel has **Format** (how the text is read: separator, quote, header row, and
+The side panel has **Format** (how the text is read: separator, quote, header row, and
 converting it), **Column** (what a column holds) and **Insert** (add, delete and move rows
-and columns, clean up).
+and columns, clean up). The button at the top right of the work area opens it over the table,
+below the table's bar, and closes it again (Escape too); it is closed when the editor opens.
+The bar's controls stay in view and usable while it is open. On a phone it is the view
+**Edit**.
+
+## Templates with placeholders
+
+A website that edits templates opens the editor with `?template=mustache` or `?template=angle`.
+The table then shows the rows filled with the website's examples: a list once per example row,
+sections by their example state, and without the rows that hold only section tags.
+**Template** in the table's bar shows the template's table with the placeholders as written,
+**Examples** brings the examples back. A placeholder without an example shows its label in
+brackets. The **Placeholders** box below the code lists them: a click puts one at the cursor, a
+section around the selected text. A cell that shows an example cannot be changed in the table;
+a click on it puts the code's cursor at its placeholder. Saving, downloading and exporting keep
+the placeholders.
 
 ## Your documents
 
@@ -97,7 +112,9 @@ document appears in your editor. **Undo** takes every change back. The links loo
 A tab opened with such a link hands the document to the editor tab you used last. You can
 also paste the AI's whole answer into the editor (Ctrl+V outside the code); links that a
 terminal broke over several lines are joined. When the editor is embedded in another
-website, links cannot reach it, so paste the answer there.
+website, links cannot reach it, so paste the answer there. A website that embeds the
+editor may give its own instructions for how the AI answers, or show its own AI dialog
+when you press the button; the dialog names the website and shows its instructions.
 
 **Browser agents (WebMCP):** in browsers that offer WebMCP, the page registers tools for AI
 agents that run in the page itself: `get_document`, `get_problems`, `get_rows`, `set_cell`,

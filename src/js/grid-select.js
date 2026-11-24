@@ -6,8 +6,8 @@
 import {
     ROW_HEIGHT, HEAD_HEIGHT, NUMBER_WIDTH, getDataCount, getTableWidth, getTopRow, getColumnWidth, getClampedRow,
     getClampedColumn, getActiveRecord,
-} from './grid-view.js?v=2';
-import { renderGrid } from './grid-render.js?v=3';
+} from './grid-view.js?v=3';
+import { renderGrid } from './grid-render.js?v=4';
 
 /** Pixels kept between a cell scrolled into sight and the edge. */
 const SCROLL_MARGIN = 2;

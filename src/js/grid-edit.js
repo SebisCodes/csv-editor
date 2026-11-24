@@ -5,9 +5,9 @@
  * written value goes to the editor as one list of cells (one undo step).
  */
 
-import { getDataCount, getRecordOf, getValueAt } from './grid-view.js?v=2';
-import { renderGrid, moveEditField } from './grid-render.js?v=3';
-import { setActiveCell } from './grid-select.js?v=3';
+import { getDataCount, getRecordOf, getValueAt } from './grid-view.js?v=3';
+import { renderGrid, moveEditField } from './grid-render.js?v=4';
+import { setActiveCell } from './grid-select.js?v=4';
 
 /** The most lines the edit field grows to. */
 const MAX_FIELD_LINES = 8;
@@ -83,6 +83,8 @@ function getCharIndexAt(element, x, y) {
 export function startEdit(view, initial, cellElement, x, y) {
     if (view.edit) return;
     const { r, c } = view.active;
+    const refusal = view.context.getEditRefusal ? view.context.getEditRefusal(getRecordOf(view, r), c) : null;
+    if (refusal) { view.context.toast(refusal); return; }
     const before = r < getDataCount(view) || r === -1 ? getValueAt(view, r, c) : '';
     const clickedIndex = initial == null && cellElement && x != null ? getCharIndexAt(cellElement, x, y) : null;
     view.edit = { r, c, before };

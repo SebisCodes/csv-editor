@@ -15,12 +15,12 @@
  *   4. return the API the editor uses.
  */
 
-import { createGridView, getSelectionRange, getDataCount, getRecordOf, getActiveRecord } from './grid-view.js?v=2';
-import { renderGrid, startGridRender } from './grid-render.js?v=3';
-import { setActiveCell, updateSelection } from './grid-select.js?v=3';
-import { connectEditField, stopEdit } from './grid-edit.js?v=3';
-import { connectPointer, connectKeys } from './grid-input.js?v=3';
-import { connectClipboard } from './grid-clipboard.js?v=2';
+import { createGridView, getSelectionRange, getDataCount, getRecordOf, getActiveRecord } from './grid-view.js?v=3';
+import { renderGrid, startGridRender } from './grid-render.js?v=4';
+import { setActiveCell, updateSelection } from './grid-select.js?v=4';
+import { connectEditField, stopEdit } from './grid-edit.js?v=4';
+import { connectPointer, connectKeys } from './grid-input.js?v=4';
+import { connectClipboard } from './grid-clipboard.js?v=3';
 
 /**
  * The active cell for the editor.

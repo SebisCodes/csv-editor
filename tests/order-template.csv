@@ -1,0 +1,11 @@
+name,street,postalCode,city,item,quantity
+{{name}},{{street}},{{postalCode}},{{city}},,
+{{#items}}
+,,,,{{item}},{{quantity}}
+{{/items}}
+{{#hasNote}},,,,,
+"Note for {{name}}, {{city}}",,,,{{note}},
+{{/hasNote}}
+{{^hasNote}}
+No note,,,,,
+{{/hasNote}}

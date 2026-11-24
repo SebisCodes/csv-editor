@@ -7,7 +7,7 @@ import { escapeHtml } from './csv.js?v=4';
 import { getColumnLetter } from './values.js?v=3';
 import {
     ROW_HEIGHT, HEAD_HEIGHT, NUMBER_WIDTH, getDataCount, getTableWidth, getRecordOf, getColumnWidth, getSelectionRange,
-} from './grid-view.js?v=2';
+} from './grid-view.js?v=3';
 
 /** Rows drawn above and below the ones in sight. */
 const EXTRA_ROWS = 3;
@@ -23,7 +23,7 @@ const NEW_ROW_MARK = '＋';
 const LINE_BREAK_MARK = '<i class="nl">↵</i>';
 
 /**
- * Returns a value as HTML with its line breaks shown as a mark.
+ * Returns a value as HTML with its line breaks shown as a mark; template tags stay text as written.
  * @param {*} value - the value.
  * @returns {string} the HTML.
  */
@@ -103,7 +103,8 @@ function formatHeaderHtml(view, range) {
 }
 
 /**
- * Returns the HTML of one view row: its number and its cells.
+ * Returns the HTML of one view row: its number and its cells (cells past the end of a short row
+ * are marked, those of a template's control row stay plain).
  * @param {import('./grid-view.js').GridView} view - the view state.
  * @param {number} row - the view row.
  * @param {import('./grid-view.js').ViewRange} range - the selected range.
@@ -122,7 +123,7 @@ function formatRowHtml(view, row, range) {
         if (S.colType[c] === 'number') classes.push('number');
         if (c === width || isNewRow) classes.push('empty');
         if (isSelected(range, row, c)) classes.push(active.r === row && active.c === c ? 'a' : 'b');
-        if (!isNewRow && c >= values.length && c < width) classes.push('missing');
+        if (!isNewRow && c >= values.length && c < width && !S.controlRows.has(record)) classes.push('missing');
         cells += `<span class="${classes.join(' ')}" data-c="${c}" style="width:${getColumnWidth(view, c)}px">${c < values.length ? formatCellHtml(values[c]) : ''}</span>`;
     }
     const rowClass = row >= range.r1 && row <= range.r2 ? ' row-on' : '';

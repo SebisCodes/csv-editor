@@ -1,16 +1,19 @@
 /**
  * Problems of the document, listed above the code with their line: unclosed quotes, text after
  * a closing quote, quotes inside an unquoted field, rows with another number of fields than
- * the header (or most rows), and empty and repeated header names. A click on one puts the
- * code's cursor there.
+ * the header (or most rows), and empty and repeated header names. In a template (?template=)
+ * the control rows are left out of the field count, and the placeholder errors of the whole text
+ * join the list. A click on one puts the code's cursor there.
  */
 
 import { readRecord, escapeHtml } from './csv.js?v=4';
 import { getColumnLetter } from './values.js?v=3';
-import { state, ui, NARROW_SCREEN, translate } from './state.js?v=2';
-import { getCodeLine } from './text-index.js?v=2';
-import { showCodePosition, selectCellAtCursor } from './code-view.js?v=3';
-import { showPane } from './layout.js?v=3';
+import { state, ui, NARROW_SCREEN, translate } from './state.js?v=3';
+import { getCodeLine } from './text-index.js?v=3';
+import { showCodePosition, selectCellAtCursor } from './code-view.js?v=4';
+import { showPane } from './layout.js?v=4';
+import { checkTemplateSections } from './template-tags.js?v=2';
+import { TEMPLATE_SYNTAX } from './template-rows.js?v=1';
 
 /** At most this many problems are listed per kind of check. */
 const MAX_LISTED = 400;
@@ -33,6 +36,7 @@ export function updateProblems() {
     const expected = getExpectedFieldCount();
     const fieldCounts = getFieldCountProblems(expected, problems.length);
     problems.push(...fieldCounts.problems, ...getHeaderNameProblems());
+    for (const problem of getTemplateProblems()) problems.push(problem);
     problems.sort((a, b) => a.pos - b.pos);
     state.problems = problems;
     state.problemsMore = fieldCounts.wrongRows > MAX_LISTED ? fieldCounts.wrongRows - MAX_LISTED : 0;
@@ -57,21 +61,28 @@ function getParseProblems() {
 }
 
 /**
- * Returns the number of fields a row should have: the header's, or the most common one.
+ * Returns the number of fields a row should have: the header's, or the most common one (control
+ * rows left out).
  * @returns {number} the number of fields.
  */
 function getExpectedFieldCount() {
     const rows = state.P.rows;
     if (state.header && rows.length) return rows[0].length;
     const frequency = new Map();
-    for (let i = 0; i < Math.min(rows.length, COUNTED_ROWS); i++) frequency.set(rows[i].length, (frequency.get(rows[i].length) || 0) + 1);
+    let counted = 0;
+    for (let i = 0; i < rows.length && counted < COUNTED_ROWS; i++) {
+        if (state.controlRows.has(i)) continue;
+        frequency.set(rows[i].length, (frequency.get(rows[i].length) || 0) + 1);
+        counted++;
+    }
     let expected = 0, best = 0;
     for (const [count, rowCount] of frequency) if (rowCount > best) { best = rowCount; expected = count; }
     return expected;
 }
 
 /**
- * Returns the rows with another number of fields than expected (empty lines told apart).
+ * Returns the rows with another number of fields than expected (empty lines told apart); control
+ * rows are left out.
  * @param {number} expected - the number of fields a row should have.
  * @param {number} alreadyListed - the problems already in the list; the list stops at 401.
  * @returns {{problems: import('./state.js').Problem[], wrongRows: number}} the listed problems and
@@ -82,7 +93,7 @@ function getFieldCountProblems(expected, alreadyListed) {
     let wrongRows = 0;
     for (let i = state.header ? 1 : 0; i < rows.length; i++) {
         const count = rows[i].length;
-        if (count === expected) continue;
+        if (count === expected || state.controlRows.has(i)) continue;
         wrongRows++;
         if (alreadyListed + problems.length > MAX_LISTED) continue;
         const pos = state.P.starts[i];
@@ -91,6 +102,15 @@ function getFieldCountProblems(expected, alreadyListed) {
         else problems.push({ pos, kind: 'warn', msg: state.header ? `${fields} - the header has ${expected}` : `${fields} - most rows have ${expected}` });
     }
     return { problems, wrongRows };
+}
+
+/**
+ * Returns the placeholder errors of the whole text: sections left open, stray or misplaced end
+ * tags and tags with a sign outside the syntax.
+ * @returns {import('./state.js').Problem[]} the errors; empty without a template syntax.
+ */
+function getTemplateProblems() {
+    return TEMPLATE_SYNTAX ? checkTemplateSections(state.code, TEMPLATE_SYNTAX) : [];
 }
 
 /**

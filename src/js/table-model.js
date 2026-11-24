@@ -6,15 +6,19 @@
  * parseDocument() runs these steps:
  *   1. find separator, quote character, header row and line ending;
  *   2. read the text;
- *   3. measure the columns (for a new width or another document) or update their kinds;
- *   4. work out the rows of the view;
- *   5. find the problems.
+ *   3. find the control rows of a template;
+ *   4. measure the columns (for a new width or another document) or update their kinds;
+ *   5. build the example view of a template (table-views.js);
+ *   6. work out the rows of the view;
+ *   7. find the problems.
  */
 
-import { parseCsv, readRecord, findSeparator, findLineEnding } from './csv.js?v=4';
+import { parseCsv, readRecord, findSeparator, findLineEnding, findRecordIndex } from './csv.js?v=4';
 import { getColumnInfo, getSortKey, getValueOrder, getColumnLetter } from './values.js?v=3';
-import { state, ui, getElement, getClamped } from './state.js?v=2';
-import { updateProblems } from './problems.js?v=3';
+import { state, ui, getElement, getClamped } from './state.js?v=3';
+import { updateProblems } from './problems.js?v=4';
+import { TEMPLATE_SYNTAX, findControlRows, getRecordBlocks } from './template-rows.js?v=1';
+import { tableSource, getExampleTable, setExampleOrder, updateExampleTable } from './table-views.js?v=1';
 
 /** How much of the start of the text the separator and line ending are found in. */
 const DETECTION_LENGTH = 65536;
@@ -32,6 +36,8 @@ const MIN_COLUMN_WIDTH = 64;
 const MAX_COLUMN_WIDTH = 320;
 /** The width of the empty column at the end. */
 const NEW_COLUMN_WIDTH = 90;
+/** The control rows of a table without any. */
+const NO_CONTROL_ROWS = new Set();
 
 /**
  * Reads the text with the document's format; the table, the view and the problems follow.
@@ -45,8 +51,10 @@ export function parseDocument() {
     state.eol = findLineEnding(head);
     state.P = parseCsv(state.code, state.sep, state.q);
     state.parsed = state.code;
+    state.controlRows = findControlRows(state.P.rows, TEMPLATE_SYNTAX);
     if (state.colW.length !== state.P.width + 1 || state.parsedFileId !== state.fileId) { setColumnWidths(); state.parsedFileId = state.fileId; }
     else updateColumnTypes();
+    updateExampleTable();
     updateView();
     updateProblems();
 }
@@ -67,42 +75,55 @@ function setColumnWidths() {
 }
 
 /**
- * Sets the kind of every column from its first data rows.
+ * Sets the kind of every column from its first data rows (control rows of a template left out).
  * @returns {void}
  */
 function updateColumnTypes() {
-    const rows = state.P.rows, from = state.header ? 1 : 0, to = Math.min(rows.length, from + TYPED_ROWS);
-    state.colType = Array.from({ length: state.P.width }, (_, column) => {
-        const values = [];
-        for (let i = from; i < to; i++) values.push(rows[i][column]);
-        return getColumnInfo(values).type;
-    });
+    const rows = state.P.rows, typed = [];
+    for (let i = state.header ? 1 : 0; i < rows.length && typed.length < TYPED_ROWS; i++) if (!state.controlRows.has(i)) typed.push(rows[i]);
+    state.colType = Array.from({ length: state.P.width }, (_, column) => getColumnInfo(typed.map(values => values[column])).type);
 }
 
 /**
- * Works out the data rows the table shows: filtered, then sorted (only the view), and shows
- * the row count and the sort above the table.
+ * Works out the data rows the table shows: filtered, then sorted (only the view), of the
+ * template and of its example table, and shows the row count and the sort above the table.
  * @returns {void}
  */
 export function updateView() {
-    const rows = state.P.rows, from = state.header ? 1 : 0;
     const filter = state.filter.text.trim().toLowerCase();
-    const list = getFilteredRecords(filter);
-    if (state.sort && state.sort.col < state.P.width) setRecordOrder(list, state.sort.col, state.sort.dir);
-    else if (state.sort) state.sort = null;
-    state.view = Int32Array.from(list);
-    state.viewPos = new Int32Array(rows.length).fill(-1);
-    state.view.forEach((record, index) => { state.viewPos[record] = index; });
-    renderViewInfo(rows.length - from, !!filter);
+    if (state.sort && state.sort.col >= state.P.width) state.sort = null;
+    const order = getViewOrder(state.P.rows, state.controlRows, filter);
+    state.view = order.view;
+    state.viewPos = order.viewPos;
+    const exampleTable = getExampleTable();
+    if (exampleTable) setExampleOrder(getViewOrder(exampleTable.P.rows, NO_CONTROL_ROWS, filter));
+    renderViewInfo(tableSource.P.rows.length - (state.header ? 1 : 0), !!filter);
+}
+
+/**
+ * Returns the data rows of a table that pass the filter, sorted by the sort of the view.
+ * @param {string[][]} rows - the values of every record.
+ * @param {Set<number>} controlRows - the control rows, which keep their places when sorting.
+ * @param {string} filter - the filter text, trimmed and in lower case; "" for none.
+ * @returns {{view: Int32Array, viewPos: Int32Array}} the records shown in their order, and the view row of each record (-1 when not shown).
+ */
+function getViewOrder(rows, controlRows, filter) {
+    const list = getFilteredRecords(rows, filter);
+    if (state.sort) setRecordOrder(list, state.sort.col, state.sort.dir, rows, controlRows);
+    const view = Int32Array.from(list);
+    const viewPos = new Int32Array(rows.length).fill(-1);
+    view.forEach((record, index) => { viewPos[record] = index; });
+    return { view, viewPos };
 }
 
 /**
  * Returns the data records that pass the filter, in their order.
+ * @param {string[][]} rows - the values of every record.
  * @param {string} filter - the filter text, trimmed and in lower case; "" for none.
  * @returns {number[]} the record indices.
  */
-function getFilteredRecords(filter) {
-    const rows = state.P.rows, list = [];
+function getFilteredRecords(rows, filter) {
+    const list = [];
     for (let i = state.header ? 1 : 0; i < rows.length; i++) {
         if (filter) {
             const values = rows[i];
@@ -116,15 +137,20 @@ function getFilteredRecords(filter) {
 
 /**
  * Sorts record indices by the values of a column, by its kind; equal values keep their order.
+ * In a template the records are sorted within each block between control rows, and the control
+ * rows keep their places.
  * @param {number[]} records - the record indices; sorted in place.
  * @param {number} column - the column.
  * @param {number} direction - 1 ascending, -1 descending.
+ * @param {string[][]} [rows=state.P.rows] - the values of every record of the table the indices point into.
+ * @param {Set<number>} [controlRows=state.controlRows] - the control rows of that table.
  * @returns {void}
  */
-export function setRecordOrder(records, column, direction) {
-    const rows = state.P.rows, getKey = getSortKey(state.colType[column]);
+export function setRecordOrder(records, column, direction, rows = state.P.rows, controlRows = state.controlRows) {
+    const getKey = getSortKey(state.colType[column]);
     const keys = new Map(records.map(i => [i, getKey(rows[i][column] ?? '')]));
-    records.sort((a, b) => direction * getValueOrder(keys.get(a), keys.get(b)) || a - b);
+    const blocks = getRecordBlocks(rows.length, controlRows);
+    records.sort((a, b) => (blocks ? blocks[a] - blocks[b] : 0) || direction * getValueOrder(keys.get(a), keys.get(b)) || a - b);
 }
 
 /**
@@ -134,14 +160,26 @@ export function setRecordOrder(records, column, direction) {
  * @returns {void}
  */
 function renderViewInfo(total, filtered) {
-    const rows = state.P.rows;
-    ui.viewInfo.textContent = filtered ? `${state.view.length.toLocaleString('en')} of ${total.toLocaleString('en')} rows` : `${total.toLocaleString('en')} ${total === 1 ? 'row' : 'rows'}`;
+    const rows = tableSource.P.rows;
+    ui.viewInfo.textContent = filtered ? `${tableSource.view.length.toLocaleString('en')} of ${total.toLocaleString('en')} rows` : `${total.toLocaleString('en')} ${total === 1 ? 'row' : 'rows'}`;
     ui.sortInfo.hidden = !state.sort;
     if (state.sort) {
         getElement('#sort-name').textContent = state.header ? (rows[0]?.[state.sort.col] || getColumnLetter(state.sort.col)) : getColumnLetter(state.sort.col);
         getElement('#sort-dir').textContent = state.sort.dir > 0 ? '▲' : '▼';
     }
     ui.empty.hidden = rows.length > (state.header ? 1 : 0) || filtered;
+}
+
+/**
+ * Returns the place of the field that holds a place of the text.
+ * @param {number} position - the place in the text.
+ * @returns {number[]|null} [start, end) of the field, null before the first record.
+ */
+export function getFieldSpanAt(position) {
+    const record = findRecordIndex(state.P, position);
+    if (record < 0) return null;
+    const spans = readRecord(state.code, state.P.starts[record], state.sep, state.q, true).spans;
+    return spans.findLast(span => span[0] <= position) || spans[0];
 }
 
 /**

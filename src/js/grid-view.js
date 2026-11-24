@@ -48,6 +48,8 @@ export const NEW_COLUMN_WIDTH = 90;
  * @property {function(number): void} sortBy - the sort arrow of a column was clicked.
  * @property {function(string): void} toast - shows a short message.
  * @property {function(string): string} t - translates an interface text (the table is marked data-no-i18n).
+ * @property {function(number, number): ?string} [getEditRefusal] - why a cell (its record and column) cannot be
+ *   edited, or null when it can.
  */
 
 /**

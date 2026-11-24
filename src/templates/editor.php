@@ -28,9 +28,9 @@
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="/img/logo.svg">
-<link rel="stylesheet" href="/css/style.css?v=25">
+<link rel="stylesheet" href="/css/style.css?v=26">
 <script src="/js/lang-menu.js?v=1" defer></script>
-<script src="/js/theme.js?v=8" data-editor-page></script>
+<script src="/js/theme.js?v=9" data-editor-page></script>
 <script type="application/ld+json"><?= get_json_ld('jsonld') ?></script>
 </head>
 <body>
@@ -105,12 +105,20 @@
                 <textarea id="code" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="CSV code"></textarea>
             </div>
         </div>
+        <div id="placeholder-box" class="placeholder-box template-control">
+            <div id="placeholder-list" class="placeholder-list" data-placeholder-list role="group" aria-label="Placeholders" hidden></div>
+            <button type="button" class="placeholder-header" data-placeholder-toggle aria-expanded="false" aria-controls="placeholder-list" title="The placeholders of the template - a click on one puts its tag at the cursor"><svg class="arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg><span>Placeholders</span><span class="placeholder-count" data-placeholder-count data-no-i18n></span></button>
+        </div>
     </section>
 
     <div id="splitter" class="splitter" role="separator" aria-orientation="vertical" aria-label="Drag to change the width of the code area" title="Drag to change the width" tabindex="0"></div>
 
     <section class="pane tables-pane" aria-label="Table">
         <div class="pane-header tools" role="toolbar" aria-label="Table">
+            <div id="view-switch" class="view-switch template-control" role="radiogroup" aria-label="View of the table">
+                <button type="button" role="radio" data-view-set="example" aria-checked="true" title="The table filled with the examples">Examples</button>
+                <button type="button" role="radio" data-view-set="template" aria-checked="false" tabindex="-1" title="The template with its placeholders as written">Template</button>
+            </div>
             <div class="group filter-group">
                 <input type="search" id="filter" placeholder="Filter rows" aria-label="Show only rows that contain this text (Ctrl+F)" title="Show only rows that contain this text (Ctrl+F)" spellcheck="false">
                 <select id="filter-col" aria-label="Filter in" title="Filter in all columns or in one"></select>
@@ -128,10 +136,13 @@
         <div class="stage table">
             <div id="grid" class="grid" tabindex="0" role="grid" aria-label="Table: arrow keys move, Enter edits, Ctrl+C / Ctrl+V copy and paste" data-no-i18n></div>
             <p id="empty-hint" class="empty-hint" hidden>No data rows yet - type into the row marked ＋ or paste cells from a spreadsheet.</p>
+            <div id="view-note" class="view-note template-control" role="status" hidden>The examples could not be filled in - the table shows the template</div>
         </div>
     </section>
 
-    <aside class="pane inspector" aria-label="Side panel">
+    <button type="button" class="tool panel-toggle" id="btn-panel" aria-controls="side-panel" aria-expanded="false" title="Show or hide the side panel" aria-label="Side panel"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg></button>
+
+    <aside class="pane inspector" id="side-panel" aria-label="Side panel">
         <div class="pane-header tabs" role="tablist">
             <button type="button" role="tab" data-itab="format" aria-selected="true" title="How the text is read: separator, quotes, header row, encoding, line endings">Format</button>
             <button type="button" role="tab" data-itab="column" aria-selected="false" title="What the selected column holds">Column</button>
@@ -310,6 +321,6 @@ addEventListener('message', e =&gt; {
 
 <?php include __DIR__ . '/footer.php'; ?>
 
-<script type="module" src="/js/app.js?v=41"></script>
+<script type="module" src="/js/app.js?v=43"></script>
 </body>
 </html>

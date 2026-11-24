@@ -6,12 +6,12 @@
 
 import { escapeHtml, SEPARATOR_NAMES } from './csv.js?v=4';
 import { convertFromBytes } from './util.js?v=3';
-import { state, ui, getElement, getDataStart, openedFileBytes, translate, showToast } from './state.js?v=2';
-import { parseDocument } from './table-model.js?v=3';
-import { renderAll } from './refresh.js?v=3';
-import { editCode } from './history.js?v=3';
-import { saveDocument, saveFormat } from './storage.js?v=3';
-import { formatAllFields, setLineEndings } from './cleanup.js?v=3';
+import { state, ui, getElement, getDataStart, openedFileBytes, translate, showToast } from './state.js?v=3';
+import { parseDocument } from './table-model.js?v=4';
+import { renderAll } from './refresh.js?v=4';
+import { editCode } from './history.js?v=4';
+import { saveDocument, saveFormat } from './storage.js?v=4';
+import { formatAllFields, setLineEndings } from './cleanup.js?v=4';
 
 const SEPARATOR_LABELS = { ',': 'Comma ( , )', ';': 'Semicolon ( ; )', '\t': 'Tab', '|': 'Pipe ( | )' };
 const ENCODING_LABELS = { 'utf-8': 'UTF-8', 'utf-8-bom': 'UTF-8 with BOM', 'windows-1252': 'Windows-1252' };

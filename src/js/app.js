@@ -11,7 +11,8 @@
  * Start-up steps:
  *   1. the interface language (the AI prompt stays English) and the line wrap of the code;
  *   2. connect the code view, the problems, the table, the side panel, the documents, opening
- *      files, the keyboard, the layout, the Export dialog and the dialogs;
+ *      files, the keyboard, the layout, the Export dialog, the dialogs and the controls of
+ *      template placeholders;
  *   3. take the stored settings and open the last document (or the welcome example);
  *   4. draw everything, and again once the language pack is there;
  *   5. start the AI Assistant, the WebMCP tools, the AI status, "Open in another editor" and
@@ -19,36 +20,39 @@
  *   6. offer the test hook window.csvEditor.
  */
 
-import { createI18n } from './i18n.js?v=22';
+import { createI18n } from './i18n.js?v=24';
 import { createWrap } from './wrap.js?v=5';
-import { createAiStatus } from './aistatus.js?v=8';
-import { createSync } from './sync.js?v=23';
+import { createAiStatus } from './aistatus.js?v=9';
+import { createSync } from './sync.js?v=25';
 import './export-menu.js?v=6';
-import { startConvert } from './convert-to.js?v=14';
+import { startConvert } from './convert-to.js?v=15';
 import { START } from './samples.js?v=3';
 import { store } from './files.js?v=8';
-import { createAi } from './ai.js?v=8';
+import { createAi } from './ai.js?v=9';
 import { createMcp } from './mcp.js?v=4';
-import { state, areas, ui, DEFAULT_FORMAT, showToast } from './state.js?v=2';
-import { updateTextIndex, getAreaPosition, getCodePosition } from './text-index.js?v=2';
-import { parseDocument } from './table-model.js?v=3';
-import { renderCode, showCodePosition, startCodeView } from './code-view.js?v=3';
-import { startProblems } from './problems.js?v=3';
-import { renderAll } from './refresh.js?v=3';
-import { setCode, addHistoryStep, undo, redo } from './history.js?v=3';
-import { getSettings, startStorageSync } from './storage.js?v=3';
-import { createTableView } from './table-view.js?v=3';
-import { renderInsert, startSidePanel } from './panel.js?v=3';
-import { setRowOrder } from './cleanup.js?v=3';
-import { showFileName, openDocument, createDocumentsDialog, startDocumentButtons } from './documents.js?v=3';
-import { startFileImport } from './file-import.js?v=3';
-import { startKeyboard } from './keyboard.js?v=3';
-import { showSplit, startLayout, startDialogs } from './layout.js?v=3';
-import { startExportDialog } from './export-dialog.js?v=3';
-import { receiveDocument, importExternalDocument } from './incoming.js?v=3';
+import { state, areas, ui, DEFAULT_FORMAT, showToast } from './state.js?v=3';
+import { updateTextIndex, getAreaPosition, getCodePosition } from './text-index.js?v=3';
+import { parseDocument } from './table-model.js?v=4';
+import { renderCode, showCodePosition, startCodeView } from './code-view.js?v=4';
+import { startProblems } from './problems.js?v=4';
+import { renderAll } from './refresh.js?v=4';
+import { setCode, addHistoryStep, undo, redo } from './history.js?v=4';
+import { getSettings, startStorageSync } from './storage.js?v=4';
+import { createTableView } from './table-view.js?v=4';
+import { renderInsert, startSidePanel } from './panel.js?v=4';
+import { setRowOrder } from './cleanup.js?v=4';
+import { showFileName, openDocument, createDocumentsDialog, startDocumentButtons } from './documents.js?v=4';
+import { startFileImport } from './file-import.js?v=4';
+import { startKeyboard } from './keyboard.js?v=4';
+import { showSplit, startLayout, startDialogs } from './layout.js?v=4';
+import { startExportDialog } from './export-dialog.js?v=4';
+import { receiveDocument, importExternalDocument } from './incoming.js?v=5';
+import { startTemplateControls, updateTemplateView } from './template-panel.js?v=1';
+import { createTemplateExamples } from './template-examples.js?v=2';
+import { getViewMode, tableSource } from './table-views.js?v=1';
 import {
     getPromptState, getProblemList, getRowRange, setAgentCell, addAgentRows, getFileList, openFileByName, createFile,
-} from './agent-api.js?v=3';
+} from './agent-api.js?v=4';
 
 const PREFIX = 'csveditor';
 
@@ -101,6 +105,7 @@ function connectAreas() {
     startLayout();
     startExportDialog();
     startDialogs();
+    startTemplateControls();
 }
 
 /**
@@ -165,6 +170,8 @@ function startAiAndSync() {
         getRemote: () => areas.sync?.getAiSettings() || null,
         fetchKey: () => (areas.sync ? areas.sync.fetchKey() : Promise.resolve(null)),
         hasValidKey: () => !!areas.sync?.hasValidKey(),
+        handleAiClick: openEditorDialog => (areas.sync ? areas.sync.handleAiClick(openEditorDialog) : openEditorDialog()),
+        getKeyDecline: () => areas.sync?.getKeyDecline() || '',
     });
     const agent = createMcp({
         onUse: () => areas.aiStatus.addDelivery('agent'),
@@ -202,6 +209,8 @@ function createSyncEditor() {
         hookFor: id => store.getEntry(id)?.hook || null,
         setHookFor: (id, hook) => { try { store.setEntryFields(id, { hook }); } catch (e) { showToast('The browser storage is full'); } },
         onAi: () => areas.ai?.updateRemote(),
+        parseTemplate: message => createTemplateExamples(message),
+        onTemplate: () => updateTemplateView(),
     };
 }
 
@@ -212,6 +221,6 @@ function createSyncEditor() {
 function createTestHook() {
     return {
         state, store, setCode, undo, redo, receive: receiveDocument, showCodePosition, setRowOrder, getAreaPosition, getCodePosition,
-        sync: () => areas.sync, grid: () => areas.grid,
+        sync: () => areas.sync, grid: () => areas.grid, viewMode: getViewMode, tableSource,
     };
 }

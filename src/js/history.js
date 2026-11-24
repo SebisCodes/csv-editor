@@ -10,11 +10,11 @@
  *   4. make an undo step, store the document and tell sync.js.
  */
 
-import { state, areas, ui, getElement, showToast } from './state.js?v=2';
-import { updateTextIndex } from './text-index.js?v=2';
-import { parseDocument } from './table-model.js?v=3';
-import { renderAll } from './refresh.js?v=3';
-import { saveDocument, saveFormat } from './storage.js?v=3';
+import { state, areas, ui, getElement, showToast } from './state.js?v=3';
+import { updateTextIndex } from './text-index.js?v=3';
+import { parseDocument } from './table-model.js?v=4';
+import { renderAll } from './refresh.js?v=4';
+import { saveDocument, saveFormat } from './storage.js?v=4';
 
 /** Characters kept for undo in all. */
 const MAX_HISTORY_SIZE = 40e6;

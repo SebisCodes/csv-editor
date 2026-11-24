@@ -2,18 +2,23 @@
  * Changes of the whole data, each one undo step: sorting the data rows themselves, cleaning
  * up (spaces, empty and repeated rows, short rows), writing every field anew (another
  * separator, quotes everywhere or only where needed) and the line endings.
+ *
+ * In a template (?template=) the control rows (template-rows.js) keep their places: sorting
+ * works within each block of rows between them, repeated rows are those of one block, and
+ * control rows keep their fields.
  */
 
 import { formatField } from './csv.js?v=4';
 import { buildReorderedText, convertRecords } from './csv-edit.js?v=3';
 import { getColumnLetter } from './values.js?v=3';
-import { state, getDataStart } from './state.js?v=2';
-import { setRecordOrder } from './table-model.js?v=3';
-import { editCode } from './history.js?v=3';
-import { saveFormat } from './storage.js?v=3';
+import { state, getDataStart } from './state.js?v=3';
+import { setRecordOrder } from './table-model.js?v=4';
+import { editCode } from './history.js?v=4';
+import { saveFormat } from './storage.js?v=4';
 
 /**
- * Sorts the data rows themselves by a column (the header row stays on top).
+ * Sorts the data rows themselves by a column (the header row stays on top; in a template each
+ * block between control rows is sorted on its own).
  * @param {number} column - the column.
  * @param {number} direction - 1 ascending, -1 descending.
  * @returns {void}
@@ -54,7 +59,8 @@ export function removeEmptyRows() {
 }
 
 /**
- * Removes data rows that repeat an earlier row exactly; the header is never compared with the rows.
+ * Removes data rows that repeat an earlier row of their block exactly; the header is never
+ * compared with the rows, and a control row starts a new block.
  * @returns {void}
  */
 export function removeRepeatedRows() {
@@ -62,6 +68,7 @@ export function removeRepeatedRows() {
     let count = 0;
     for (const [i, values] of state.P.rows.entries()) {
         if (i < getDataStart()) { order.push(i); continue; }
+        if (state.controlRows.has(i)) { seen.clear(); order.push(i); continue; }
         const key = JSON.stringify(values);                       // unambiguous, whatever the cells hold
         if (seen.has(key)) { count++; continue; }
         seen.add(key);
@@ -71,14 +78,15 @@ export function removeRepeatedRows() {
 }
 
 /**
- * Gives rows with fewer fields than the header (or the widest row) empty fields up to that number.
+ * Gives rows with fewer fields than the header (or the widest row) empty fields up to that
+ * number; control rows keep their fields.
  * @returns {void}
  */
 export function expandShortRows() {
     const width = state.header && state.P.rows.length ? state.P.rows[0].length : state.P.width;
     let count = 0;
-    const code = convertRecords(state.code, state.P, state.sep, state.q, state.eol, rawFields => {
-        if (rawFields.length >= width) return null;
+    const code = convertRecords(state.code, state.P, state.sep, state.q, state.eol, (rawFields, index) => {
+        if (rawFields.length >= width || state.controlRows.has(index)) return null;
         count++;
         return [...rawFields, ...Array(width - rawFields.length).fill('')];
     });

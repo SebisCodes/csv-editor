@@ -5,8 +5,9 @@
 
 import { formatField, formatRecord } from './csv.js?v=4';
 import { buildReorderedText, convertRecords } from './csv-edit.js?v=3';
-import { state, areas, ui, getDataStart, isViewFiltered, showToast } from './state.js?v=2';
-import { editCode } from './history.js?v=3';
+import { state, areas, ui, getDataStart, isViewFiltered, showToast } from './state.js?v=3';
+import { editCode } from './history.js?v=4';
+import { getShownViewRow } from './table-views.js?v=1';
 
 /**
  * Returns the selected data records (the header row left out).
@@ -33,7 +34,8 @@ export function addRows(where = 1) {
     if (at >= count) order.push(emptyRecord);
     if (isViewFiltered()) { state.sort = null; state.filter.text = ''; ui.filter.value = ''; }
     editCode(buildReorderedText(state.code, state.P, order, state.eol), 'Row added');
-    if (state.viewPos[at] >= 0) areas.grid.setActive(state.viewPos[at], 0);
+    const viewRow = getShownViewRow(at);
+    if (viewRow >= 0) areas.grid.setActive(viewRow, 0);
 }
 
 /**

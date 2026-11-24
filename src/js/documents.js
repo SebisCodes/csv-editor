@@ -17,10 +17,10 @@ import { store } from './files.js?v=8';
 import { createFilesDialog } from './files-dialog.js?v=2';
 import {
     state, areas, ui, getElement, getElements, DEFAULT_FORMAT, historyByDocument, openedFileBytes, showToast,
-} from './state.js?v=2';
-import { setCode, addHistoryStep, updateHistoryButtons, editCode, undo, redo } from './history.js?v=3';
-import { saveDocument } from './storage.js?v=3';
-import { showFilePicker } from './file-import.js?v=3';
+} from './state.js?v=3';
+import { setCode, addHistoryStep, updateHistoryButtons, editCode, undo, redo } from './history.js?v=4';
+import { saveDocument } from './storage.js?v=4';
+import { showFilePicker } from './file-import.js?v=4';
 
 /** The text of a blank document. */
 export const BLANK_CODE = 'Column 1,Column 2,Column 3\n';

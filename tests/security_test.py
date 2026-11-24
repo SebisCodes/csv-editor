@@ -167,6 +167,8 @@ with tempfile.TemporaryDirectory() as d:
             ed.wait_for_timeout(500)
             ed.evaluate(f'c => {HOOK}.setCode(c)', evil)
             ed.wait_for_timeout(300)
+            if ed.locator('#btn-panel').is_visible():
+                ed.click('#btn-panel')
             ed.click('[data-itab=column]')
             ed.locator('#grid .grid-row[data-r="0"] [data-c="1"]').click()
             ed.click('#btn-files')

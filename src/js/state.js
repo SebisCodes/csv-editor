@@ -62,6 +62,7 @@ const TOAST_TIME = 2800;
  * @property {string} enc - the encoding the document was opened in.
  * @property {Int32Array} view - the records of the data rows the table shows, in view order.
  * @property {Int32Array} viewPos - the view row of each record, -1 when not shown.
+ * @property {Set<number>} controlRows - the control rows of a template (rows of section tags only, template-rows.js).
  * @property {{col: number, dir: number}|null} sort - the sort of the view (dir 1 or -1).
  * @property {{text: string, col: number}} filter - the filter of the view (col -1: all columns).
  * @property {number[]} colW - the width of each column and of the empty column.
@@ -90,7 +91,7 @@ export const state = {
     code: '', ta: '', crlf: null, crlfTa: null, lines: new Int32Array([0]),
     P: { rows: [], starts: new Int32Array(0), ends: new Int32Array(0), width: 0, probs: [] }, parsed: null,
     sep: ',', q: '"', header: true, eol: '\n', fmt: { ...DEFAULT_FORMAT }, enc: 'utf-8',
-    view: new Int32Array(0), viewPos: new Int32Array(0), sort: null, filter: { text: '', col: -1 },
+    view: new Int32Array(0), viewPos: new Int32Array(0), controlRows: new Set(), sort: null, filter: { text: '', col: -1 },
     colW: [], colType: [], problems: [], problemsMore: 0, probLines: new Map(), mark: null,
     name: 'Table', fileId: '', split: 0.42, openEnc: 'auto',
     history: [], future: [], histTimer: 0, showProblems: true,

@@ -5,10 +5,10 @@
  */
 
 import { openDialog } from './dialogs.js?v=5';
-import { ui, areas, getElement } from './state.js?v=2';
-import { undo, redo } from './history.js?v=3';
-import { openExport, saveOnShortcut } from './export-dialog.js?v=3';
-import { setNewMenuOpen, isNewMenuOpen } from './documents.js?v=3';
+import { ui, areas, getElement } from './state.js?v=3';
+import { undo, redo } from './history.js?v=4';
+import { openExport, saveOnShortcut } from './export-dialog.js?v=4';
+import { setNewMenuOpen, isNewMenuOpen } from './documents.js?v=4';
 
 /** The fields that take typed text. */
 const TYPING = 'textarea, select, [contenteditable], input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=button])';

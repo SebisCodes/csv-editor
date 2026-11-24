@@ -9,9 +9,9 @@
  */
 
 import { store } from './files.js?v=8';
-import { state, areas, showToast } from './state.js?v=2';
-import { setCode } from './history.js?v=3';
-import { showFileName } from './documents.js?v=3';
+import { state, areas, showToast } from './state.js?v=3';
+import { setCode } from './history.js?v=4';
+import { showFileName } from './documents.js?v=4';
 
 const SETTINGS_KEY = 'csveditor.v1';
 const STORAGE_FULL = 'The browser storage is full - download and delete documents under "My documents"';

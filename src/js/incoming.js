@@ -6,10 +6,10 @@
 import { parseCsv, findSeparator, findLineEnding, formatRecord } from './csv.js?v=4';
 import { joinRecords } from './csv-edit.js?v=3';
 import { store } from './files.js?v=8';
-import { VIEWER } from './sync.js?v=23';
-import { state, areas, ui, showToast } from './state.js?v=2';
-import { editCode } from './history.js?v=3';
-import { openDocument, createDocument } from './documents.js?v=3';
+import { VIEWER } from './sync.js?v=25';
+import { state, areas, ui, showToast } from './state.js?v=3';
+import { editCode } from './history.js?v=4';
+import { openDocument, createDocument } from './documents.js?v=4';
 
 /** How much of the start of the text the separator is found in. */
 const DETECTION_LENGTH = 65536;

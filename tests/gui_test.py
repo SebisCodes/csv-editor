@@ -5,7 +5,8 @@
 
 Checks reading (separator, quotes, header, encoding), problems, code <->
 table, sorting and filtering, the tools in the side panel, My documents and
-templates, AI links, WebMCP tools, export and the phone layout."""
+templates, AI links, WebMCP tools, export, the phone layout and the rows of a template
+(?template=mustache: control rows, sorting within blocks)."""
 
 import base64
 import io
@@ -35,6 +36,21 @@ def check_that(cond, what):
     print(('ok    ' if cond else 'FAIL  ') + what)
     if not cond:
         failures.append(what)
+
+
+def show_side_panel(page, is_open):
+    """Opens or closes the side panel's drawer (it is closed at the start).
+
+    Args:
+        page (Page): the editor's page.
+        is_open (bool): True to open it, False to close it.
+
+    Returns:
+        None: the side panel is open or closed.
+    """
+    button = page.locator('#btn-panel')
+    if button.count() and button.is_visible() and (button.get_attribute('aria-expanded') == 'true') != is_open:
+        button.click()
 
 
 def set_code(page, text):
@@ -127,6 +143,7 @@ with sync_playwright() as pw:
     set_code(page, 'Name;Price\nTea;3,50\nCoffee;4,20\n')
     check_that(get_state(page, 'S.sep') == ';' and get_cell(page, 0, 1).inner_text() == '3,50', 'a semicolon file is detected, decimal commas stay in the cell')
     check_that(get_state(page, 'S.colType[1]') == 'number', 'decimal commas count as numbers')
+    show_side_panel(page, True)
     page.select_option('#f-sep', ',')
     page.wait_for_timeout(200)
     check_that(get_state(page, 'S.P.width') == 2 and get_cell(page, 0, 0).inner_text() == 'Tea;3', 'Format: the separator can be chosen (the text stays)')
@@ -171,6 +188,7 @@ with sync_playwright() as pw:
 
     # --- Column info ---
     get_cell(page, 0, 1).click()
+    show_side_panel(page, True)
     page.click('[data-itab=column]')
     info = page.inner_text('#column-body')
     check_that('Numbers' in info and '119' in info and 'Qty' in info, 'Column: kind, sum and name of the column')
@@ -209,6 +227,7 @@ with sync_playwright() as pw:
     page.wait_for_timeout(200)
     check_that(get_state(page, 'S.code') == 'A,B\nx,y\n1,\n', 'clean up: spaces, repeated rows, empty rows, missing fields: ' + repr(get_state(page, 'S.code')))
     page.click('[data-itab=format]')
+    show_side_panel(page, False)
 
     # --- My documents, templates ---
     page.click('#btn-new')
@@ -226,7 +245,9 @@ with sync_playwright() as pw:
     page.set_input_files('#file', files=[{'name': 'Orte.csv', 'mimeType': 'text/csv', 'buffer': 'Name;Ort\nJürg;Zürich\n'.encode('cp1252')}])
     page.wait_for_timeout(500)
     check_that(get_state(page, 'S.name') == 'Orte' and get_cell(page, 0, 1).inner_text() == 'Zürich' and get_state(page, 'S.enc') == 'windows-1252', 'a Windows-1252 file is read correctly')
+    show_side_panel(page, True)
     check_that('Windows-1252' in page.inner_text('#format-body'), 'Format shows how the file was read')
+    show_side_panel(page, False)
     page.set_input_files('#file', files=[{'name': 'Bom.csv', 'mimeType': 'text/csv', 'buffer': b'\xef\xbb\xbfA,B\n\xc3\xa4,2\n'}])
     page.wait_for_timeout(500)
     check_that(get_state(page, 'S.code') == 'A,B\nä,2\n' and page.is_checked('#f-bom'), 'UTF-8 with BOM: read without the BOM, and downloaded with it')
@@ -305,6 +326,48 @@ with sync_playwright() as pw:
     check_that(page.locator('#grid').is_visible(), 'phone: the table')
     page.click('[data-pane=code]')
     check_that(page.locator('#code').is_visible(), 'phone: the code view')
+
+    # --- Template placeholders (?template=mustache) ---
+    template_page = ctx.new_page()
+    template_page.on('pageerror', lambda e: errors.append(str(e)))
+    template_page.goto(URL + '?lang=en&template=mustache', wait_until='networkidle')
+    template_page.wait_for_timeout(500)
+    blocks = 'name,qty\n{{#items}}\nb,2\na,1\nb,2\n{{/items}}\n{{#items}},\nb,2\n{{/items}}\n'
+    set_code(template_page, blocks + 'short\n')
+    check_that(get_state(template_page, 'S.problems.map(p => p.msg)') == ['1 field - the header has 2'], 'template: control rows are left out of the field count, a short row is reported')
+    check_that(template_page.locator('#hl .tp, #grid .tp').count() == 0, 'template: the tags have no color of their own in the code and in the cells')
+    template_page.click('#view-switch [data-view-set=template]')
+    check_that(template_page.inner_text('#grid .grid-row[data-r="0"]').strip().endswith('{{#items}}') and template_page.locator('#grid .grid-row[data-r="0"] .missing').count() == 0,
+               'template: the template view shows a control row, its cells are not marked as missing')
+    set_code(template_page, blocks)
+    template_page.evaluate('csvEditor.setRowOrder(0, 1)')
+    check_that(get_state(template_page, 'S.code') == 'name,qty\n{{#items}}\na,1\nb,2\nb,2\n{{/items}}\n{{#items}},\nb,2\n{{/items}}\n', 'template: sorting keeps every block between control rows in its place')
+    set_code(template_page, 'amount\n{{#x}}\n-2\n-10\n{{/x}}\n')
+    template_page.evaluate('csvEditor.setRowOrder(0, 1)')
+    check_that(get_state(template_page, 'S.colType[0]') == 'number' and get_state(template_page, 'S.code') == 'amount\n{{#x}}\n-10\n-2\n{{/x}}\n', 'template: control rows are left out of the column kind, numbers sort as numbers')
+    set_code(template_page, blocks)
+    show_side_panel(template_page, True)
+    template_page.click('[data-itab=insert]')
+    template_page.click('[data-act=dupes]')
+    template_page.wait_for_timeout(150)
+    check_that(get_state(template_page, 'S.code') == 'name,qty\n{{#items}}\nb,2\na,1\n{{/items}}\n{{#items}},\nb,2\n{{/items}}\n', 'template: repeated rows are those of one block, control rows stay')
+    set_code(template_page, blocks + 'short\n')
+    template_page.click('[data-act=even]')
+    template_page.wait_for_timeout(150)
+    check_that(get_state(template_page, 'S.code').endswith('{{/items}}\nshort,\n') and '\n{{#items}}\n' in get_state(template_page, 'S.code'), 'template: short rows are filled up, control rows keep their fields')
+    plain_page = ctx.new_page()
+    plain_page.on('pageerror', lambda e: errors.append(str(e)))
+    plain_page.goto(URL + '?lang=en', wait_until='networkidle')
+    plain_page.wait_for_timeout(500)
+    set_code(plain_page, blocks + 'short\n')
+    check_that(len(get_state(plain_page, 'S.problems')) == 4 and plain_page.locator('#hl .tp').count() == 0, 'option off: every row with another number of fields is reported, no placeholder color')
+    show_side_panel(plain_page, True)
+    plain_page.click('[data-itab=insert]')
+    plain_page.click('[data-act=dupes]')
+    plain_page.wait_for_timeout(150)
+    check_that(get_state(plain_page, 'S.code') == 'name,qty\n{{#items}}\nb,2\na,1\n{{/items}}\n{{#items}},\nshort\n', 'option off: repeated rows across the whole table')
+    template_page.close()
+    plain_page.close()
 
     check_that(not errors, 'no script errors' + (': ' + '; '.join(errors) if errors else ''))
     browser.close()

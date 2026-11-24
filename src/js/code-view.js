@@ -9,12 +9,13 @@
 
 import { findRecordIndex, readRecord } from './csv.js?v=4';
 import { highlight } from './highlight.js?v=2';
-import { state, areas, ui, NARROW_SCREEN } from './state.js?v=2';
-import { updateTextIndex, getAreaPosition, getCodePosition, getAreaLine } from './text-index.js?v=2';
-import { updateTableNow } from './refresh.js?v=3';
-import { renderPanel } from './panel.js?v=3';
-import { addHistoryStep, updateHistoryButtons, undo, redo } from './history.js?v=3';
-import { saveDocument } from './storage.js?v=3';
+import { state, areas, ui, NARROW_SCREEN } from './state.js?v=3';
+import { updateTextIndex, getAreaPosition, getCodePosition, getAreaLine } from './text-index.js?v=3';
+import { updateTableNow } from './refresh.js?v=4';
+import { renderPanel } from './panel.js?v=4';
+import { addHistoryStep, updateHistoryButtons, undo, redo } from './history.js?v=4';
+import { saveDocument } from './storage.js?v=4';
+import { getShownViewRow } from './table-views.js?v=1';
 
 const LINE_HEIGHT = 20;
 const CODE_PADDING = 10;
@@ -68,7 +69,8 @@ export function renderCode() {
 
 /**
  * Colors the lines from first to last. Highlighting starts at the record that holds the first
- * line (a quoted field may span lines).
+ * line (a quoted field may span lines); the highlighted records are then split into lines.
+ * Template tags stay text as written.
  * @param {number} first - the first line, 0-based.
  * @param {number} last - the last line.
  * @returns {void}
@@ -83,7 +85,8 @@ function renderHighlight(first, last) {
     } else headerFirst = state.header && from === 0;
     if (from - start > MAX_RECORD_LOOKBACK) { start = from; headerFirst = false; }
     const skip = first - getAreaLine(start);
-    const lines = highlight(state.ta, start, to, state.sep, state.q, headerFirst).split('\n').slice(skip, skip + last - first + 1);
+    const html = highlight(state.ta, start, to, state.sep, state.q, headerFirst);
+    const lines = html.split('\n').slice(skip, skip + last - first + 1);
     ui.hl.innerHTML = lines.join('\n') + '\n';
 }
 
@@ -209,8 +212,8 @@ export function selectCellAtCursor() {
     const read = readRecord(state.code, state.P.starts[record], state.sep, state.q, true);
     let column = 0;
     for (let i = 0; i < read.spans.length; i++) if (position >= read.spans[i][0]) column = i;
-    const viewRow = state.header && record === 0 ? -1 : state.viewPos[record];
-    if (viewRow == null || viewRow < -1 || (viewRow === -1 && !(state.header && record === 0))) return;
+    const viewRow = getShownViewRow(record);
+    if (viewRow < -1) return;
     state.mark = null;
     areas.grid.setActive(viewRow, column, { quiet: true });
     renderPanel();

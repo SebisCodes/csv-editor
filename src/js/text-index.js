@@ -4,7 +4,7 @@
  * two, and an index of line starts gives the line of a position.
  */
 
-import { state, areas } from './state.js?v=2';
+import { state, areas } from './state.js?v=3';
 
 /**
  * Indexes the CRLF breaks and the line starts of the text, sets the textarea's text in the

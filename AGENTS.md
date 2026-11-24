@@ -33,8 +33,14 @@ docs/         USAGE.md and EMBEDDING.md
 
 `src/js/app.js` starts the editor and wires its areas together; each area has a module of
 its own, and every file starts with a comment that says what it does. `sync.js` (webhook and
-embedding), `i18n.js`, `dialogs.js`, `zip.js`, `wrap.js`, `post.php` and `src/php/` are the
-same files in every giit editor.
+embedding), `prompt-parts.js` (the parts of the AI prompt), `i18n.js`, `dialogs.js`, `zip.js`,
+`wrap.js`, `post.php` and `src/php/` are the same files in every giit editor. The template
+placeholders (`?template=`) use the shared
+`template-tags.js`, and `template-examples.js`, `template-pictures.js`, `template-expansion.js`
+and `template-controls.js` for the page's examples, the filling with its map back to the code,
+the view switch and the "Placeholders" box; `template-rows.js` finds the control rows,
+`template-table.js` reads the example view's table, `table-views.js` chooses the view and leads
+its cells back to the template, and `template-panel.js` connects the controls.
 
 ## Languages
 
@@ -63,6 +69,7 @@ python tests/inplace_test.py   # editing in place
 python tests/perf_test.py      # a large file stays usable
 python tests/remote_test.py    # AI through the page's server, one key per session
 python tests/security_test.py  # what a hostile page or link must not do
+python tests/template_test.py  # template placeholders (?template=), runs in Node alone
 python tests/window_test.py    # the editor in its own window opened by a page
 ```
 

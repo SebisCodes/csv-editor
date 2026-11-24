@@ -10,8 +10,8 @@ import { openDialog } from './dialogs.js?v=5';
 import { createZip } from './zip.js?v=4';
 import { saveFile, getSafeName, convertToBytes } from './util.js?v=3';
 import { formatCsv, formatJson, formatMarkdown, formatHtml, createXlsxBlob } from './export.js?v=7';
-import { state, areas, ui, getElement, getDataStart, isViewFiltered, translate, showToast } from './state.js?v=2';
-import { updateTableNow } from './refresh.js?v=3';
+import { state, areas, ui, getElement, getDataStart, isViewFiltered, translate, showToast } from './state.js?v=3';
+import { updateTableNow } from './refresh.js?v=4';
 
 const EXTENSIONS = { csv: 'csv', tsv: 'tsv', json: 'json', md: 'md', html: 'html', xlsx: 'xlsx' };
 const MEDIA_TYPES = { csv: 'text/csv', tsv: 'text/tab-separated-values', json: 'application/json', md: 'text/markdown', html: 'text/html', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' };

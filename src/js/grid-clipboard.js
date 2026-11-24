@@ -6,7 +6,7 @@
 
 import { parseCsv } from './csv.js?v=4';
 import { hasLink } from './ai-links.js?v=2';
-import { getDataCount, getRecordOf, getValueAt, getSelectionRange } from './grid-view.js?v=2';
+import { getDataCount, getRecordOf, getValueAt, getSelectionRange } from './grid-view.js?v=3';
 
 /**
  * Returns the cells of a range, made by a function.
