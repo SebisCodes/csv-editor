@@ -20,10 +20,10 @@
  *   6. offer the test hook window.csvEditor.
  */
 
-import { createI18n } from './i18n.js?v=25';
+import { createI18n } from './i18n.js?v=26';
 import { createWrap } from './wrap.js?v=5';
 import { createAiStatus } from './aistatus.js?v=9';
-import { createSync } from './sync.js?v=25';
+import { createSync } from './sync.js?v=26';
 import './export-menu.js?v=6';
 import { startConvert } from './convert-to.js?v=15';
 import { START } from './samples.js?v=3';
@@ -46,7 +46,7 @@ import { startFileImport } from './file-import.js?v=5';
 import { startKeyboard } from './keyboard.js?v=5';
 import { showSplit, startLayout, startDialogs } from './layout.js?v=5';
 import { startExportDialog } from './export-dialog.js?v=5';
-import { receiveDocument, importExternalDocument } from './incoming.js?v=6';
+import { receiveDocument, importExternalDocument } from './incoming.js?v=7';
 import { startTemplateControls, updateTemplateView } from './template-panel.js?v=2';
 import { createTemplateExamples } from './template-examples.js?v=2';
 import { getViewMode, tableSource } from './table-views.js?v=1';
